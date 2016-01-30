@@ -1,0 +1,56 @@
+#!/bin/bash
+#
+# Script for disabling/enabling the touchpad when using the X11
+#
+# 2016 Richard Merry
+
+__get_touchpad_id__() {
+    xinput list | grep -Ei "touchpad" | sed -e 's/^.*id=//' -e 's/\s.*$//'
+}
+
+__set_device_status__() {
+    xinput set-prop $1 "Device Enabled" $2
+}
+__turn_off__() {
+    id=$(__get_touchpad_id__)
+    __set_device_status__ $id 0
+}
+
+__turn_on__() {
+    id=$(__get_touchpad_id__)
+    __set_device_status__ $id 1
+}
+
+__usage__() {
+cat << EOF
+Usage: xctp [COMMANDS] [OPTIONS]
+
+COMMANDS
+    on      enable the touch pad
+    off     disable the touch pad off
+
+OPTIONS
+    -id --identifier    the touchpad's unique identifier; if not specified 
+                        an attempt will be made to detect this automatically
+
+EOF
+}
+
+if [[ $# == 0 ]]; then
+    __usage__
+else
+    case $1 in
+        --help|-help|--?|-?)
+            __usage__
+            ;;
+        on)
+            __turn_on__
+            ;;
+        off)
+            __turn_off__
+            ;;
+        *)
+            __usage__
+            ;;
+    esac
+fi
